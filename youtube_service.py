@@ -40,8 +40,15 @@ class YoutubeService:
 
             for item in playlist_response["items"]:
                 video_id = item["snippet"]["resourceId"]["videoId"]
-                video_title = item["snippet"]["title"]
-                videos.append({"id": video_id, "title": video_title})
+                snippet = item['snippet']
+                video_info = {
+                    'video_id': video_id,
+                    'title': snippet['title'],
+                    'description': snippet['description'],
+                    'published_at': snippet['publishedAt'],
+                    'thumbnail_url': snippet['thumbnails']['high']['url']
+                }
+                videos.append(video_info)
 
             next_page_token = playlist_response.get("nextPageToken")
             if not next_page_token:
