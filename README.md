@@ -32,4 +32,4 @@ For support, please open an issue in the GitHub repository or reach out to the m
 
 ---
 
-Made with ❤️ for making Ghana's democracy more accessible
+Made with ❤️ for making Ghana's democracy more accessible.
