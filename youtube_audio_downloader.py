@@ -17,7 +17,7 @@ logger.setLevel(logging.INFO)
 # Environment variables
 YOUTUBE_API_KEY = os.environ["YOUTUBE_API_KEY"]
 CHANNEL_ID = os.environ["CHANNEL_ID"]
-DOWNLOAD_DIR = os.environ.get("DOWNLOAD_DIR", "local_data")
+DOWNLOAD_DIR = os.environ.get("DOWNLOAD_DIR", "local_data/audio")
 MAX_VIDEOS = 4
 
 # Create download directory if it doesn't exist
