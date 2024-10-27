@@ -106,16 +106,16 @@ class YouTubeSync:
             logger.info(f"https://www.youtube.com/watch?v={video['video_id']}")
             yt = YouTube(
                 f"https://www.youtube.com/watch?v={video['video_id']}",
-                on_progress_callback=on_progress,
+                on_progress_callback=on_progress
             )
-            stream = yt.streams.get_highest_resolution()
+            stream = yt.streams.filter(only_audio=True).order_by('abr').desc().first()
 
             if not stream:
                 logger.error(f"No suitable stream found for video {video['video_id']}")
                 return None
 
             # Prepare S3 multipart upload
-            s3_key = f"{S3_PREFIX}{video['video_id']}.mp4"
+            s3_key = f"{S3_PREFIX}{video['video_id']}.mp3"
 
             # Initialize multipart upload
             mpu = self.s3.create_multipart_upload(
@@ -184,6 +184,7 @@ class YouTubeSync:
             "s3_key": s3_key,
             "downloaded_at": datetime.now(tz=timezone.utc),
             "last_checked": datetime.now(tz=timezone.utc),
+            "processed_at": None
         }
 
         self.videos_collection.insert_one(video_doc)
@@ -193,7 +194,7 @@ class YouTubeSync:
         try:
             # Get all videos from channel
             logger.info(f"Fetching videos for channel {CHANNEL_ID}")
-            videos = self.youtube_service.get_channel_videos()
+            videos = self.get_channel_videos()
 
             # Find new videos
             new_videos = self.get_new_videos(videos)
