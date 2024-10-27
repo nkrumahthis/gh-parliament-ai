@@ -1,4 +1,3 @@
-# audio_processor.py
 import os
 import json
 import logging
