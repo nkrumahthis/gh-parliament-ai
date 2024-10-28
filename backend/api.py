@@ -3,7 +3,7 @@ from fastapi import FastAPI, HTTPException
 import logging
 from dotenv import load_dotenv
 from query_service import QueryService, VideoReference, NoContextChunksFound
-from typing import List, Dict
+from typing import List
 from pydantic import BaseModel
 from pinecone import Pinecone
 from openai import OpenAI

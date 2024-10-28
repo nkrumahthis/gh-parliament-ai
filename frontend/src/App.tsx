@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Send, Loader2, Youtube, Clock, ArrowUpRight } from 'lucide-react';
+import SampleQuestions from './components/SampleQuestions';
 
 interface Message {
   type: string;
@@ -74,7 +75,7 @@ const App = () => {
       {/* Left Sidebar */}
       <div className="w-64 bg-white border-r border-gray-200 p-4">
         <div className="flex items-center space-x-2 mb-8">
-          <div className="font-bold text-xl">Video RAG</div>
+          <div className="font-bold text-xl">🇬🇭 gh-parliament-ai</div>
         </div>
 
         <div className="space-y-2">
@@ -89,50 +90,49 @@ const App = () => {
         {/* Top Navigation */}
         <div className="h-14 border-b border-gray-200 flex items-center px-6 bg-white">
           <div className="flex space-x-4">
-            <button className="px-4 py-2 text-sm font-medium text-gray-900 border-b-2 border-gray-900">
+            <h1 className="px-4 py-2 text-sm font-medium text-gray-900 border-b-2 border-gray-900">
               Chat
-            </button>
-            <button className="px-4 py-2 text-sm font-medium text-gray-500">
-              References
-            </button>
+            </h1>
           </div>
         </div>
 
         {/* Chat Container */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
-          {messages.map((message, index) => (
-            <div key={index} className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}>
-              <div className={`max-w-2xl ${message.type === 'user' ? 'bg-blue-600 text-white' : 'bg-white'} rounded-lg p-4 shadow`}>
-                <div className="text-sm">{message.content}</div>
+          <div>
+            {messages.map((message, index) => (
+              <div key={index} className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}>
+                <div className={`max-w-2xl ${message.type === 'user' ? 'bg-blue-600 text-white' : 'bg-white'} rounded-lg p-4 shadow`}>
+                  <div className="text-sm">{message.content}</div>
 
-                {message.references && (
-                  <div className="mt-4 space-y-2">
-                    <div className="text-xs font-medium text-gray-500">References:</div>
-                    {message.references.map((ref, idx) => (
-                      <div key={idx} className="bg-gray-50 rounded p-2 text-sm">
-                        <div className="flex items-center space-x-2 text-xs text-gray-500 mb-1">
-                          <Youtube size={12} />
-                          <span>{new URL(ref.video_url).searchParams.get('v')}</span> {/* TODO Get the video name not the url */}
-                          <Clock size={12} />
-                          <span>{ref.timestamp}</span>
-                          <a
-                            href={ref.video_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center text-blue-600 hover:text-blue-800"
-                          >
-                            <ArrowUpRight size={12} />
-                            <span>Watch</span>
-                          </a>
+                  {message.references && (
+                    <div className="mt-4 space-y-2">
+                      <div className="text-xs font-medium text-gray-500">References:</div>
+                      {message.references.map((ref, idx) => (
+                        <div key={idx} className="bg-gray-50 rounded p-2 text-sm">
+                          <div className="flex items-center space-x-2 text-xs text-gray-500 mb-1">
+                            <Youtube size={12} />
+                            <span>{new URL(ref.video_url).searchParams.get('v')}</span> {/* TODO Get the video name not the url */}
+                            <Clock size={12} />
+                            <span>{ref.timestamp}</span>
+                            <a
+                              href={ref.video_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center text-blue-600 hover:text-blue-800"
+                            >
+                              <ArrowUpRight size={12} />
+                              <span>Watch</span>
+                            </a>
+                          </div>
+                          <div className="text-gray-700">{ref.text}</div>
                         </div>
-                        <div className="text-gray-700">{ref.text}</div>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
           <div ref={messagesEndRef} />
         </div>
 
@@ -168,18 +168,7 @@ const App = () => {
       <div className="w-80 bg-white border-l border-gray-200 p-4">
         <div className="space-y-4">
           <div className="font-medium">Sample Questions</div>
-          <button
-            onClick={() => setInput("What are the main challenges discussed in the video?")}
-            className="w-full text-left p-2 text-sm text-gray-600 bg-gray-100 hover:bg-gray-200 rounded"
-          >
-            What are the main challenges discussed in the video?
-          </button>
-          <button
-            onClick={() => setInput("Can you summarize the key points about AI's impact?")}
-            className="w-full text-left p-2 text-sm text-gray-600 bg-gray-100 hover:bg-gray-200 rounded"
-          >
-            Can you summarize the key points about AI's impact?
-          </button>
+          <SampleQuestions setInput={setInput} />
         </div>
       </div>
     </div>
