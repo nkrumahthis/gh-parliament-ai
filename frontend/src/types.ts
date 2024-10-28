@@ -11,7 +11,7 @@ export interface FollowUpQuestion {
 }
 
 export interface Message {
-    type: 'user' | 'assistant';
+    type: 'user' | 'assistant' | 'error';
     content: string;
     timestamp: string;
     references?: Reference[];

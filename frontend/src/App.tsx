@@ -80,7 +80,7 @@ const App = () => {
       console.error('Error:', error);
       // Handle error in the current conversation
       if (currentConversation) {
-        setCurrentConversation(prev => {
+        setCurrentConversation((prev) => {
           if (!prev) return null;
           return {
             ...prev,

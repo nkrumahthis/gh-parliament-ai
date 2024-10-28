@@ -2,12 +2,7 @@
 import React from 'react';
 import { MessageCircle, Clock } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
-
-export interface Conversation {
-    conversation_id: string;
-    created_at: string;
-    first_message: string;
-}
+import { Conversation, Message } from '../types';
 
 interface ConversationListProps {
     conversations: Conversation[];
@@ -40,7 +35,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
                         <div className="flex items-center gap-2 mb-1">
                             <MessageCircle className="w-4 h-4 text-gray-500" />
                             <span className="text-sm font-medium text-gray-900 truncate">
-                                {conv.first_message}
+                                {conv.conversation_id}
                             </span>
                         </div>
                         <div className="flex items-center gap-1 text-xs text-gray-500">

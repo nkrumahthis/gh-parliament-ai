@@ -3,7 +3,7 @@ from fastapi import FastAPI, HTTPException
 import logging
 from dotenv import load_dotenv
 from query_service import QueryService, VideoReference, NoContextChunksFound
-from typing import List
+from typing import List, Optional
 from pydantic import BaseModel
 from pinecone import Pinecone
 from openai import OpenAI
@@ -46,6 +46,7 @@ app.add_middleware(
 class QueryRequest(BaseModel):
     question: str
     num_results: int = 4
+    conversation_id: Optional[str] = None
 
 
 class FollowUpQuestion(BaseModel):
@@ -55,6 +56,7 @@ class FollowUpQuestion(BaseModel):
 
 
 class QueryResponse(BaseModel):
+    conversation_id: str
     answer: str
     references: List[VideoReference]
     follow_up_questions: List[FollowUpQuestion]
@@ -67,36 +69,36 @@ class QueryError(Exception):
 @app.post("/query", response_model=QueryResponse)
 async def query_videos(request: QueryRequest):
     try:
-        # Create new conversation if conversation_id not provided
-        print(request)
-        if hasattr(request, "conversation_id"):
-            conversation_id = request.conversation_id
-        else:
-            conversation_id = await conversation_service.create_conversation(
-                request.question
-            )
-
-        # Get relevant video segments from Pinecone
+        # Query and get answers for the conversation
         answer, references, follow_up_questions = await query_service.query(
             request.question, request.num_results
         )
 
-        # Save messages to conversation
-        await conversation_service.add_message(
-            conversation_id, {"type": "user", "content": request.question}
+        # Save both user and assistant messages in the conversation
+        user_message = {
+            "type": "user",
+            "content": request.question
+        }
+
+        assistant_message = {
+            "type": "assistant",
+            "content": answer,
+            "references": [ref.dict() for ref in references],
+            "follow_up_questions": follow_up_questions
+        }
+
+        # Save user message
+        conversation_id = await conversation_service.create_or_update_conversation(
+            request.conversation_id, user_message
         )
 
-        await conversation_service.add_message(
-            conversation_id,
-            {
-                "type": "assistant",
-                "content": answer,
-                "references": [ref.dict() for ref in references],
-                "follow_up_questions": follow_up_questions,
-            },
+        # Save assistant message
+        await conversation_service.create_or_update_conversation(
+            conversation_id, assistant_message
         )
 
         return QueryResponse(
+            conversation_id=conversation_id,
             answer=answer,
             references=references,
             follow_up_questions=follow_up_questions,

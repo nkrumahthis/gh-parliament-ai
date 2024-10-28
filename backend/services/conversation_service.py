@@ -1,5 +1,5 @@
 from typing import List, Optional
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import uuid4
 from pymongo import MongoClient, DESCENDING
 import os
@@ -17,7 +17,7 @@ class ConversationService:
         self, conversation_id: Optional[str], message: dict
     ) -> str:
         """Create a new conversation or update existing one with new message."""
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         
         if not conversation_id:
             # Create new conversation
