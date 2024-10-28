@@ -7,38 +7,38 @@ interface SampleQuestionsProps {
     followUpQuestions: FollowUpQuestion[];
 }
 
-const SampleQuestions: React.FC<SampleQuestionsProps> = ({ 
-    setInput, 
-    followUpQuestions 
+const SampleQuestions: React.FC<SampleQuestionsProps> = ({
+    setInput,
+    followUpQuestions
 }) => {
     const categoryColors: Record<string, { bg: string; text: string; border: string }> = {
-        'Related Bill': { 
-            bg: 'bg-blue-50', 
+        'Related Bill': {
+            bg: 'bg-blue-50',
             text: 'text-blue-700',
             border: 'border-blue-100'
         },
-        'Debate Context': { 
-            bg: 'bg-green-50', 
+        'Debate Context': {
+            bg: 'bg-green-50',
             text: 'text-green-700',
             border: 'border-green-100'
         },
-        'Impact Analysis': { 
-            bg: 'bg-purple-50', 
+        'Impact Analysis': {
+            bg: 'bg-purple-50',
             text: 'text-purple-700',
             border: 'border-purple-100'
         },
-        'Procedure': { 
-            bg: 'bg-orange-50', 
+        'Procedure': {
+            bg: 'bg-orange-50',
             text: 'text-orange-700',
             border: 'border-orange-100'
         },
-        'Timeline': { 
-            bg: 'bg-red-50', 
+        'Timeline': {
+            bg: 'bg-red-50',
             text: 'text-red-700',
             border: 'border-red-100'
         },
-        'Key Players': { 
-            bg: 'bg-indigo-50', 
+        'Key Players': {
+            bg: 'bg-indigo-50',
             text: 'text-indigo-700',
             border: 'border-indigo-100'
         }
@@ -70,46 +70,40 @@ const SampleQuestions: React.FC<SampleQuestionsProps> = ({
     const questionsToShow = followUpQuestions.length > 0 ? followUpQuestions : defaultQuestions;
 
     return (
-        <div className="flex flex-col gap-4 p-4">
-            <div className="bg-white rounded-lg shadow-sm p-4">
-                
-                
-                <div className="space-y-3">
-                    {questionsToShow.map((question, index) => {
-                        const colors = categoryColors[question.category] || {
-                            bg: 'bg-gray-50',
-                            text: 'text-gray-700',
-                            border: 'border-gray-100'
-                        };
-                        
-                        return (
-                            <div 
-                                key={index}
-                                className={`rounded-lg border ${colors.border}`}
-                            >
-                                <button
-                                    onClick={() => setInput(question.text)}
-                                    className={`w-full text-left p-3 ${colors.bg} rounded-t-lg hover:opacity-90 transition-opacity`}
-                                >
-                                    <div className="flex items-center gap-2 mb-1">
-                                        <Tag className={`w-3 h-3 ${colors.text}`} />
-                                        <span className={`text-xs font-medium ${colors.text}`}>
-                                            {question.category}
-                                        </span>
-                                    </div>
-                                    <p className="text-sm text-gray-700">
-                                        {question.text}
-                                    </p>
-                                </button>
-                                
-                                <div className="px-3 py-2 text-xs text-gray-500 border-t border-gray-100">
-                                    {question.context}
-                                </div>
+        <div className="flex flex-col p-4 space-y-4 gap-4">
+            {questionsToShow.map((question, index) => {
+                const colors = categoryColors[question.category] || {
+                    bg: 'bg-gray-50',
+                    text: 'text-gray-700',
+                    border: 'border-gray-100'
+                };
+
+                return (
+                    <div
+                        key={index}
+                        className={`rounded-lg border ${colors.border}`}
+                    >
+                        <button
+                            onClick={() => setInput(question.text)}
+                            className={`w-full text-left p-3 ${colors.bg} rounded-t-lg hover:opacity-90 transition-opacity`}
+                        >
+                            <div className="flex items-center gap-2 mb-1">
+                                <Tag className={`w-3 h-3 ${colors.text}`} />
+                                <span className={`text-xs font-medium ${colors.text}`}>
+                                    {question.category}
+                                </span>
                             </div>
-                        );
-                    })}
-                </div>
-            </div>
+                            <p className="text-sm text-gray-700">
+                                {question.text}
+                            </p>
+                        </button>
+
+                        <div className="px-3 py-2 text-xs text-gray-500 border-t border-gray-100">
+                            {question.context}
+                        </div>
+                    </div>
+                );
+            })}
         </div>
     );
 };
