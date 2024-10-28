@@ -1,18 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
-import { Send, Loader2, Youtube, Clock, ArrowUpRight } from 'lucide-react';
+import { Send, Loader2 } from 'lucide-react';
 import SampleQuestions from './components/SampleQuestions';
-
-interface Message {
-  type: string;
-  content: string;
-  references?: Reference[];
-}
-
-interface Reference {
-  video_url: string;
-  timestamp: string;
-  text: string;
-}
+import ChatContainer from './components/ChatContainer';
+import { Message } from './types';
 
 const App = () => {
 
@@ -33,7 +23,7 @@ const App = () => {
     e.preventDefault();
     if (!input.trim()) return;
 
-    const userMessage = { type: 'user', content: input };
+    const userMessage: Message = { type: 'user', content: input };
     setMessages(prev => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
@@ -52,7 +42,7 @@ const App = () => {
 
       const data = await response.json();
 
-      const assistantMessage = {
+      const assistantMessage: Message = {
         type: 'assistant',
         content: data.answer,
         references: data.references
@@ -98,41 +88,8 @@ const App = () => {
 
         {/* Chat Container */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
-          <div>
-            {messages.map((message, index) => (
-              <div key={index} className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-2xl ${message.type === 'user' ? 'bg-blue-600 text-white' : 'bg-white'} rounded-lg p-4 shadow`}>
-                  <div className="text-sm">{message.content}</div>
-
-                  {message.references && (
-                    <div className="mt-4 space-y-2">
-                      <div className="text-xs font-medium text-gray-500">References:</div>
-                      {message.references.map((ref, idx) => (
-                        <div key={idx} className="bg-gray-50 rounded p-2 text-sm">
-                          <div className="flex items-center space-x-2 text-xs text-gray-500 mb-1">
-                            <Youtube size={12} />
-                            <span>{new URL(ref.video_url).searchParams.get('v')}</span> {/* TODO Get the video name not the url */}
-                            <Clock size={12} />
-                            <span>{ref.timestamp}</span>
-                            <a
-                              href={ref.video_url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex items-center text-blue-600 hover:text-blue-800"
-                            >
-                              <ArrowUpRight size={12} />
-                              <span>Watch</span>
-                            </a>
-                          </div>
-                          <div className="text-gray-700">{ref.text}</div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
+          
+          <ChatContainer messages={messages} />
           <div ref={messagesEndRef} />
         </div>
 
