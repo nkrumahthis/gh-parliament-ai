@@ -9,3 +9,9 @@ export interface Message {
 	content: string;
 	references?: Reference[];
 }
+
+export interface FollowUpQuestion {
+    text: string;
+    category: string;
+    context: string;
+}

@@ -1,7 +1,7 @@
 from typing import List, Dict
 from pydantic import BaseModel
 import logging
-
+import json
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -39,18 +39,35 @@ class QueryService:
             {
                 "role": "system",
                 "content": """You are a knowledgeable assistant specialized in Ghana's parliamentary proceedings.
-                    Your role is to help people understand parliamentary discussions, bills, debates, and procedures
-                    in Ghana's Parliament. 
+                Your role is to help people understand parliamentary discussions, bills, debates, and procedures
+                in Ghana's Parliament. 
 
-                    When answering:
-                    - Use clear, accessible language to explain parliamentary terms and procedures
-                    - Maintain formal and respectful tone when discussing parliamentary matters
-                    - Present information objectively without political bias
-                    - Focus on factual proceedings and official parliamentary business
-                    - Be precise about legislative details, motions, and voting outcomes
-                    
-                    Provide direct, informative answers without mentioning video sources or timestamps
-                    - these will be shown separately.""",
+                When answering:
+                - Use clear, accessible language
+                - Present information objectively
+                
+                After your answer, suggest 3 relevant follow-up questions in this exact format:
+                
+                FOLLOW_UP_QUESTIONS:
+                {
+                    "questions": [
+                        {
+                            "text": "First follow-up question",
+                            "category": "one of: [Related Bill, Debate Context, Impact Analysis, Procedure, Timeline, Key Players]",
+                            "context": "Brief explanation of why this question is relevant"
+                        },
+                        {
+                            "text": "Second follow-up question",
+                            "category": "...",
+                            "context": "..."
+                        },
+                        {
+                            "text": "Third follow-up question",
+                            "category": "...",
+                            "context": "..."
+                        }
+                    ]
+                }""",
             },
             {
                 "role": "user",
@@ -105,7 +122,19 @@ class QueryService:
             max_tokens=1000,
         )
 
-        answer = completion.choices[0].message.content
+        full_response = completion.choices[0].message.content
+        parts = full_response.split("FOLLOW_UP_QUESTIONS:")
+        
+        answer = parts[0].strip()
+        follow_up_questions = []
+        
+        if len(parts) > 1:
+            try:
+                questions_json = json.loads(parts[1].strip())
+                follow_up_questions = questions_json["questions"]
+            except json.JSONDecodeError:
+                logger.error("Failed to parse follow-up questions JSON")
+                follow_up_questions = []
 
         # Format video references
         references = [
@@ -117,4 +146,4 @@ class QueryService:
             for chunk in context_chunks
         ]
 
-        return answer, references
+        return answer, references, follow_up_questions

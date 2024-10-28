@@ -1,12 +1,13 @@
 import { useState, useRef, useEffect } from 'react';
-import { Send, Loader2 } from 'lucide-react';
+import { Send, Loader2, HelpCircle, ArrowRight } from 'lucide-react';
 import SampleQuestions from './components/SampleQuestions';
 import ChatContainer from './components/ChatContainer';
-import { Message } from './types';
+import { FollowUpQuestion, Message } from './types';
 
 const App = () => {
 
   const [messages, setMessages] = useState<Message[]>([]);
+  const [followUpQuestions, setFollowUpQuestions] = useState<FollowUpQuestion[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
@@ -42,6 +43,8 @@ const App = () => {
 
       const data = await response.json();
 
+      console.log(data)
+
       const assistantMessage: Message = {
         type: 'assistant',
         content: data.answer,
@@ -49,6 +52,7 @@ const App = () => {
       };
 
       setMessages(prev => [...prev, assistantMessage]);
+      setFollowUpQuestions(data.follow_up_questions);
     } catch (error) {
       console.error('Error:', error);
       setMessages(prev => [...prev, {
@@ -124,8 +128,20 @@ const App = () => {
       {/* Right Sidebar */}
       <div className="w-80 bg-white border-l border-gray-200 p-4">
         <div className="space-y-4">
-          <div className="font-medium">Sample Questions</div>
-          <SampleQuestions setInput={setInput} />
+        <div className="flex items-center gap-2 mb-3">
+                    {followUpQuestions.length > 0 ? (
+                        <>
+                            <ArrowRight className="w-4 h-4 text-green-700" />
+                            <h3 className="font-medium text-gray-900">Related Questions</h3>
+                        </>
+                    ) : (
+                        <>
+                            <HelpCircle className="w-4 h-4 text-gray-500" />
+                            <h3 className="font-medium text-gray-900">Suggested Questions</h3>
+                        </>
+                    )}
+                </div>
+          <SampleQuestions setInput={setInput} followUpQuestions={followUpQuestions}/>
         </div>
       </div>
     </div>

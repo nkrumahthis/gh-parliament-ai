@@ -43,9 +43,16 @@ class QueryRequest(BaseModel):
     num_results: int = 4
 
 
+class FollowUpQuestion(BaseModel):
+    text: str
+    category: str
+    context: str
+
+
 class QueryResponse(BaseModel):
     answer: str
     references: List[VideoReference]
+    follow_up_questions: List[FollowUpQuestion]
 
 
 class QueryError(Exception):
@@ -57,10 +64,14 @@ async def query_videos(request: QueryRequest):
     try:
         # Get relevant video segments from Pinecone
         query_service = QueryService(client, index)
-        answer, references = await query_service.query(
+        answer, references, follow_up_questions = await query_service.query(
             request.question, request.num_results
         )
-        return QueryResponse(answer=answer, references=references)
+        return QueryResponse(
+            answer=answer,
+            references=references,
+            follow_up_questions=follow_up_questions,
+        )
     except NoContextChunksFound:
         raise HTTPException(
             status_code=404,
