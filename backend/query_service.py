@@ -7,9 +7,11 @@ import json
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 # no context chunks found Exception
 class NoContextChunksFound(Exception):
     pass
+
 
 class VideoReference(BaseModel):
     video_url: str
@@ -21,7 +23,7 @@ class QueryService:
     def __init__(self, client, index):
         self.client = client
         self.index = index
-        
+
     def create_messages(self, question: str, context_chunks: List[Dict]) -> List[Dict]:
         """Create messages for OpenAI chat completion."""
 
@@ -106,8 +108,6 @@ class QueryService:
     async def query(self, question: str, num_results: int):
         context_chunks = await self.query_pinecone(question, num_results)
 
-        print(context_chunks)
-
         if not context_chunks:
             raise NoContextChunksFound
 
@@ -124,10 +124,10 @@ class QueryService:
 
         full_response = completion.choices[0].message.content
         parts = full_response.split("FOLLOW_UP_QUESTIONS:")
-        
+
         answer = parts[0].strip()
         follow_up_questions = []
-        
+
         if len(parts) > 1:
             try:
                 questions_json = json.loads(parts[1].strip())

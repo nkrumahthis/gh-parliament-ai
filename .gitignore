@@ -3,3 +3,4 @@
 .env
 __pycache__
 local_data/
+.DS_Store

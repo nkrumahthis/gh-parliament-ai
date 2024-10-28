@@ -7,6 +7,7 @@ from typing import List
 from pydantic import BaseModel
 from pinecone import Pinecone
 from openai import OpenAI
+from services.conversation_service import ConversationService
 
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -25,6 +26,10 @@ PINECONE_INDEX = os.environ["PINECONE_INDEX"]
 # Initialize clients
 client = OpenAI()
 index = Pinecone(api_key=PINECONE_API_KEY).Index(PINECONE_INDEX)
+
+# Initialize services
+query_service = QueryService(client, index)
+conversation_service = ConversationService()
 
 
 # Initialize FastAPI
@@ -62,11 +67,35 @@ class QueryError(Exception):
 @app.post("/query", response_model=QueryResponse)
 async def query_videos(request: QueryRequest):
     try:
+        # Create new conversation if conversation_id not provided
+        print(request)
+        if hasattr(request, "conversation_id"):
+            conversation_id = request.conversation_id
+        else:
+            conversation_id = await conversation_service.create_conversation(
+                request.question
+            )
+
         # Get relevant video segments from Pinecone
-        query_service = QueryService(client, index)
         answer, references, follow_up_questions = await query_service.query(
             request.question, request.num_results
         )
+
+        # Save messages to conversation
+        await conversation_service.add_message(
+            conversation_id, {"type": "user", "content": request.question}
+        )
+
+        await conversation_service.add_message(
+            conversation_id,
+            {
+                "type": "assistant",
+                "content": answer,
+                "references": [ref.dict() for ref in references],
+                "follow_up_questions": follow_up_questions,
+            },
+        )
+
         return QueryResponse(
             answer=answer,
             references=references,
@@ -80,6 +109,18 @@ async def query_videos(request: QueryRequest):
     except Exception as e:
         logger.error(f"Error processing query: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/conversations")
+async def get_conversations():
+    return await conversation_service.get_conversations()
+
+@app.get("/conversations/{conversation_id}")
+async def get_conversation(conversation_id: str):
+    conversation = await conversation_service.get_conversation(conversation_id)
+    if not conversation:
+        raise HTTPException(status_code=404, detail="Conversation not found")
+    return conversation
 
 
 @app.get("/health")

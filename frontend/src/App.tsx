@@ -2,12 +2,12 @@ import { useState, useRef, useEffect } from 'react';
 import { Send, Loader2, HelpCircle, ArrowRight } from 'lucide-react';
 import SampleQuestions from './components/SampleQuestions';
 import ChatContainer from './components/ChatContainer';
-import { FollowUpQuestion, Message } from './types';
+import { FollowUpQuestion, Message, Conversation } from './types';
+import ConversationList from './components/ConversationList';
 
 const App = () => {
-
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [followUpQuestions, setFollowUpQuestions] = useState<FollowUpQuestion[]>([]);
+  const [currentConversation, setCurrentConversation] = useState<Conversation | null>(null);
+  const [conversations, setConversations] = useState<Conversation[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
@@ -18,15 +18,37 @@ const App = () => {
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [currentConversation?.messages]);
+
+  // Fetch conversations on mount
+  useEffect(() => {
+    fetchConversations();
+  }, []);
+
+  const fetchConversations = async () => {
+    try {
+      const response = await fetch('http://localhost:8000/conversations');
+      const data = await response.json();
+      setConversations(data);
+    } catch (error) {
+      console.error('Error fetching conversations:', error);
+    }
+  };
+
+  const loadConversation = async (conversationId: string) => {
+    try {
+      const response = await fetch(`http://localhost:8000/conversations/${conversationId}`);
+      const conversation = await response.json();
+      setCurrentConversation(conversation);
+    } catch (error) {
+      console.error('Error loading conversation:', error);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!input.trim()) return;
 
-    const userMessage: Message = { type: 'user', content: input };
-    setMessages(prev => [...prev, userMessage]);
-    setInput('');
     setIsLoading(true);
 
     try {
@@ -37,46 +59,68 @@ const App = () => {
         },
         body: JSON.stringify({
           question: input,
-          num_results: 4
+          num_results: 4,
+          conversation_id: currentConversation?.conversation_id
         }),
       });
 
       const data = await response.json();
 
-      console.log(data)
+      // If this was a new conversation, fetch all conversations to get the new one
+      if (!currentConversation?.conversation_id) {
+        await fetchConversations();
+      }
 
-      const assistantMessage: Message = {
-        type: 'assistant',
-        content: data.answer,
-        references: data.references
-      };
+      // Load the current conversation with updated messages
+      await loadConversation(data.conversation_id);
+      
+      setInput('');
 
-      setMessages(prev => [...prev, assistantMessage]);
-      setFollowUpQuestions(data.follow_up_questions);
     } catch (error) {
       console.error('Error:', error);
-      setMessages(prev => [...prev, {
-        type: 'error',
-        content: 'Sorry, there was an error processing your request.'
-      }]);
+      // Handle error in the current conversation
+      if (currentConversation) {
+        setCurrentConversation(prev => {
+          if (!prev) return null;
+          return {
+            ...prev,
+            messages: [...prev.messages, {
+              type: 'error',
+              content: 'Sorry, there was an error processing your request.',
+              timestamp: new Date().toISOString()
+            }]
+          };
+        });
+      }
     } finally {
       setIsLoading(false);
     }
   };
 
+  // Get follow-up questions from the last assistant message
+  const getFollowUpQuestions = (): FollowUpQuestion[] => {
+    if (!currentConversation?.messages) return [];
+    
+    const assistantMessages = currentConversation.messages.filter(m => m.type === 'assistant');
+    if (assistantMessages.length === 0) return [];
+    
+    const lastAssistantMessage = assistantMessages[assistantMessages.length - 1];
+    return lastAssistantMessage.follow_up_questions || [];
+  };
+
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Left Sidebar */}
-      <div className="w-64 bg-white border-r border-gray-200 p-4">
+      <div className="w-80 bg-white border-r border-gray-200 p-4 overflow-y-auto">
         <div className="flex items-center space-x-2 mb-8">
           <div className="font-bold text-xl">🇬🇭 gh-parliament-ai</div>
         </div>
 
-        <div className="space-y-2">
-          <div className="text-sm text-gray-500">
-            Ask questions about the video content. Get answers with direct references and timestamps.
-          </div>
-        </div>
+        <ConversationList
+          conversations={conversations}
+          activeConversation={currentConversation?.conversation_id || null}
+          onSelectConversation={loadConversation}
+        />
       </div>
 
       {/* Main Content */}
@@ -92,8 +136,7 @@ const App = () => {
 
         {/* Chat Container */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
-          
-          <ChatContainer messages={messages} />
+          <ChatContainer messages={currentConversation?.messages || []} />
           <div ref={messagesEndRef} />
         </div>
 
@@ -105,7 +148,7 @@ const App = () => {
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Ask about the video content..."
+                placeholder="Ask about parliamentary proceedings..."
                 className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 disabled={isLoading}
               />
@@ -128,20 +171,23 @@ const App = () => {
       {/* Right Sidebar */}
       <div className="w-80 bg-white border-l border-gray-200 p-4">
         <div className="space-y-4">
-        <div className="flex items-center gap-2 mb-3">
-                    {followUpQuestions.length > 0 ? (
-                        <>
-                            <ArrowRight className="w-4 h-4 text-green-700" />
-                            <h3 className="font-medium text-gray-900">Related Questions</h3>
-                        </>
-                    ) : (
-                        <>
-                            <HelpCircle className="w-4 h-4 text-gray-500" />
-                            <h3 className="font-medium text-gray-900">Suggested Questions</h3>
-                        </>
-                    )}
-                </div>
-          <SampleQuestions setInput={setInput} followUpQuestions={followUpQuestions}/>
+          <div className="flex items-center gap-2 mb-3">
+            {getFollowUpQuestions().length > 0 ? (
+              <>
+                <ArrowRight className="w-4 h-4 text-green-700" />
+                <h3 className="font-medium text-gray-900">Related Questions</h3>
+              </>
+            ) : (
+              <>
+                <HelpCircle className="w-4 h-4 text-gray-500" />
+                <h3 className="font-medium text-gray-900">Suggested Questions</h3>
+              </>
+            )}
+          </div>
+          <SampleQuestions 
+            setInput={setInput} 
+            followUpQuestions={getFollowUpQuestions()} 
+          />
         </div>
       </div>
     </div>

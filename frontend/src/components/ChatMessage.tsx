@@ -7,12 +7,13 @@ interface ChatMessageProps {
     message: Message;
 }
 
+
 const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
     return (
         <div className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div className={`max-w-2xl ${message.type === 'user'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-white shadow border border-gray-100'
+                ? 'bg-blue-600 text-white'
+                : 'bg-white shadow border border-gray-100'
                 } rounded-lg p-4`}>
                 <div className="prose prose-sm max-w-none">
                     <ReactMarkdown
