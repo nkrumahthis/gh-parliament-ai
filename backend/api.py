@@ -7,6 +7,10 @@ from openai import OpenAI
 import logging
 from dotenv import load_dotenv
 
+from fastapi.middleware.cors import CORSMiddleware
+
+
+
 load_dotenv()
 
 # Configure logging
@@ -14,7 +18,14 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Initialize FastAPI
-app = FastAPI(title="Video RAG API")
+app = FastAPI(title="gh-parliament-ai API")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Environment variables
 OPENAI_API_KEY = os.environ["OPENAI_API_KEY"]

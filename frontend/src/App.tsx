@@ -112,7 +112,7 @@ const App = () => {
                       <div key={idx} className="bg-gray-50 rounded p-2 text-sm">
                         <div className="flex items-center space-x-2 text-xs text-gray-500 mb-1">
                           <Youtube size={12} />
-                          <span>{new URL(ref.video_url).searchParams.get('v')}</span>
+                          <span>{new URL(ref.video_url).searchParams.get('v')}</span> {/* TODO Get the video name not the url */}
                           <Clock size={12} />
                           <span>{ref.timestamp}</span>
                           <a
