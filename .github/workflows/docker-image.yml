@@ -15,4 +15,4 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Build the Docker image
-      run: docker build backend --file Dockerfile --tag gh-parliament-ai-server:$(date +%s)
+      run: docker build backend --file backend/Dockerfile --tag gh-parliament-ai-server:$(date +%s)
