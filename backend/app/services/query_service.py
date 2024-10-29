@@ -31,7 +31,7 @@ class QueryService:
         formatted_contexts = []
         for chunk in context_chunks:
             formatted_contexts.append(
-                f"[Video Segment: {chunk['timestamp']} - {chunk['timestamp_link']}]\n{chunk['text']}"
+                f"[Proceeding: {chunk['timestamp']} - {chunk['timestamp_link']}]\n{chunk['text']}"
             )
 
         context_text = "\n\n".join(formatted_contexts)
@@ -41,8 +41,8 @@ class QueryService:
             {
                 "role": "system",
                 "content": """You are a knowledgeable assistant specialized in Ghana's parliamentary proceedings.
-                Your role is to help people understand parliamentary discussions, bills, debates, and procedures
-                in Ghana's Parliament. 
+                Your role is to help regular people understand parliamentary discussions, bills, debates, and procedures
+                in Ghana's Parliament in a clear and simple manner. 
 
                 When answering:
                 - Use clear, accessible language

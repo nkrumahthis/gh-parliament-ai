@@ -5,6 +5,8 @@ import ChatContainer from './components/ChatContainer';
 import { FollowUpQuestion, Conversation } from './types';
 import ConversationList from './components/ConversationList';
 
+const BACKEND = import.meta.env.VITE_BACKEND_BASE_URL
+
 const App = () => {
   const [currentConversation, setCurrentConversation] = useState<Conversation | null>(null);
   const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -27,7 +29,7 @@ const App = () => {
 
   const fetchConversations = async () => {
     try {
-      const response = await fetch('http://localhost:8000/conversations');
+      const response = await fetch(`${BACKEND}/conversations`);
       const data = await response.json();
       setConversations(data);
     } catch (error) {
@@ -37,7 +39,7 @@ const App = () => {
 
   const loadConversation = async (conversationId: string) => {
     try {
-      const response = await fetch(`http://localhost:8000/conversations/${conversationId}`);
+      const response = await fetch(`${BACKEND}/conversations/${conversationId}`);
       const conversation = await response.json();
       setCurrentConversation(conversation);
     } catch (error) {
@@ -52,7 +54,7 @@ const App = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:8000/query', {
+      const response = await fetch(`${BACKEND}/query`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
