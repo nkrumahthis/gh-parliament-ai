@@ -1,5 +1,5 @@
 import React from 'react';
-import { HelpCircle, ArrowRight, Tag } from 'lucide-react';
+import { Tag } from 'lucide-react';
 import { FollowUpQuestion } from '../types';
 
 interface SampleQuestionsProps {

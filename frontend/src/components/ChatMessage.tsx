@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
-import { Youtube, Clock, ArrowUpRight } from 'lucide-react';
 import { Message } from '../types';
+import References from './References';
 
 interface ChatMessageProps {
     message: Message;
@@ -34,30 +34,8 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
                 </div>
 
                 {/* References section */}
-                {message.references && message.references.length > 0 && (
-                    <div className="mt-4 space-y-2 pt-4 border-t border-gray-100">
-                        <div className="text-xs font-medium text-gray-500">References:</div>
-                        {message.references.map((ref, idx) => (
-                            <div key={idx} className="bg-gray-50 rounded p-2 text-sm">
-                                <div className="flex items-center space-x-2 text-xs text-gray-500 mb-1">
-                                    <Youtube size={12} />
-                                    <span>{new URL(ref.video_url).searchParams.get('v')}</span> {/* TODO Get the video name not the url */}
-                                    <Clock size={12} />
-                                    <span>{ref.timestamp}</span>
-                                    <a
-                                        href={ref.video_url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="flex items-center text-blue-600 hover:text-blue-800"
-                                    >
-                                        <ArrowUpRight size={12} />
-                                        <span>Watch</span>
-                                    </a>
-                                </div>
-                                <div className="text-gray-700">{ref.text}</div>
-                            </div>
-                        ))}
-                    </div>
+                {message.references && message.type === 'assistant' && (
+                    <References references={message.references} />
                 )}
             </div>
         </div>

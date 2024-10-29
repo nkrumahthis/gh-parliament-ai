@@ -1,8 +1,7 @@
-// components/ConversationList.tsx
 import React from 'react';
 import { MessageCircle, Clock } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
-import { Conversation, Message } from '../types';
+import { Conversation } from '../types';
 
 interface ConversationListProps {
     conversations: Conversation[];
@@ -20,17 +19,16 @@ const ConversationList: React.FC<ConversationListProps> = ({
             <div className="px-4 py-2 text-sm text-gray-600">
                 Ask questions about the video content. Get answers with direct references and timestamps.
             </div>
-            
+
             <div className="space-y-1">
                 {conversations.map((conv) => (
                     <button
                         key={conv.conversation_id}
                         onClick={() => onSelectConversation(conv.conversation_id)}
-                        className={`w-full px-4 py-3 text-left transition-colors ${
-                            activeConversation === conv.conversation_id
+                        className={`w-full px-4 py-3 text-left transition-colors ${activeConversation === conv.conversation_id
                                 ? 'bg-green-50 border-l-2 border-green-600'
                                 : 'hover:bg-gray-50'
-                        }`}
+                            }`}
                     >
                         <div className="flex items-center gap-2 mb-1">
                             <MessageCircle className="w-4 h-4 text-gray-500" />
