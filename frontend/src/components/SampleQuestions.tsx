@@ -70,7 +70,7 @@ const SampleQuestions: React.FC<SampleQuestionsProps> = ({
     const questionsToShow = followUpQuestions.length > 0 ? followUpQuestions : defaultQuestions;
 
     return (
-        <div className="flex flex-col p-4 space-y-4 gap-4">
+        <div className="flex flex-col p-4 space-y-4 gap-4 overflow-y-auto flex-1">
             {questionsToShow.map((question, index) => {
                 const colors = categoryColors[question.category] || {
                     bg: 'bg-gray-50',

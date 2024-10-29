@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Send, Loader2, HelpCircle, ArrowRight } from 'lucide-react';
 import SampleQuestions from './components/SampleQuestions';
 import ChatContainer from './components/ChatContainer';
-import { FollowUpQuestion, Message, Conversation } from './types';
+import { FollowUpQuestion, Conversation } from './types';
 import ConversationList from './components/ConversationList';
 
 const App = () => {
@@ -111,7 +111,7 @@ const App = () => {
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Left Sidebar */}
-      <div className="w-80 bg-white border-r border-gray-200 p-4 overflow-y-auto">
+      <div className="w-1/4 bg-white border-r border-gray-200 p-4 h-full flex flex-col">
         <div className="flex items-center space-x-2 mb-8">
           <div className="font-bold text-xl">🇬🇭 gh-parliament-ai</div>
         </div>
@@ -124,7 +124,7 @@ const App = () => {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col h-full">
         {/* Top Navigation */}
         <div className="h-14 border-b border-gray-200 flex items-center px-6 bg-white">
           <div className="flex space-x-4">
@@ -169,8 +169,8 @@ const App = () => {
       </div>
 
       {/* Right Sidebar */}
-      <div className="w-80 bg-white border-l border-gray-200 p-4">
-        <div className="space-y-4">
+      <div className="w-1/4 bg-white border-l border-gray-200 p-4 h-full">
+        <div className="space-y-4 h-full flex flex-col">
           <div className="flex items-center gap-2 mb-3">
             {getFollowUpQuestions().length > 0 ? (
               <>
