@@ -15,6 +15,7 @@ class NoContextChunksFound(Exception):
 
 class VideoReference(BaseModel):
     video_url: str
+    video_title: str
     timestamp: str
     text: str
 

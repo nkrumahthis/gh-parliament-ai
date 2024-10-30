@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 OPENAI_API_KEY = os.environ["OPENAI_API_KEY"]
 PINECONE_API_KEY = os.environ["PINECONE_API_KEY"]
 PINECONE_INDEX = os.environ["PINECONE_INDEX"]
-TRANSCRIPTS_DIR = "./local_data/transcripts"
+TRANSCRIPTS_DIR = "./pipeline/local_data/transcripts"
 
 
 class VectorStoreManager:
@@ -40,7 +40,7 @@ class VectorStoreManager:
                 dimension=1536,
                 metric="cosine",
                 spec=ServerlessSpec(cloud="aws", region="us-east-1"),
-            )  # OpenAI embedding dimension
+            )
         else:
             logger.info(f'Pinecone Index {PINECONE_INDEX} found. Using it.')
         self.index = self.pinecone_client.Index(PINECONE_INDEX)
@@ -70,6 +70,7 @@ class VectorStoreManager:
                     "metadata": {
                         "video_id": transcript_data["video_id"],
                         "video_url": transcript_data["video_url"],
+                        "video_title": transcript_data["video_title"],
                         "timestamp": timestamp,
                         "timestamp_link": video_link,
                         "start": segment["start"],
