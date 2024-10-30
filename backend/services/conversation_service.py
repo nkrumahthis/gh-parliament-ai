@@ -18,7 +18,7 @@ class ConversationService:
     ) -> str:
         """Create a new conversation or update existing one with new message."""
         now = datetime.now(timezone.utc)
-        
+
         if not conversation_id:
             # Create new conversation
             conversation_id = str(uuid4())
@@ -48,7 +48,7 @@ class ConversationService:
                     "$set": {"updated_at": now}
                 }
             )
-        
+
         return conversation_id
 
     async def get_conversations(self) -> List[dict]:
