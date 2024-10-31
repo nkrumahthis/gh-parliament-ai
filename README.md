@@ -2,6 +2,8 @@
 
 Making Ghana's parliamentary proceedings searchable and accessible through AI.
 
+<https://www.youtube.com/@parliamentofghana816/streams>
+
 ## Overview
 
 gh-parliament-ai is an open-source project that automatically processes Ghana's parliamentary session videos to create a searchable archive of proceedings. The system downloads videos from the official parliamentary YouTube channel, transcribes them using AI, and makes them searchable through a modern web interface.
