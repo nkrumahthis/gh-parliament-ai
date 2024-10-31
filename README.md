@@ -8,12 +8,8 @@ gh-parliament-ai is an open-source project that automatically processes Ghana's 
 
 ## Features
 
-- 🎥 Automatic video ingestion from Ghana Parliament's YouTube channel
-- ☁️ Secure storage of video files in AWS S3
-- 🎯 High-accuracy transcription using WhisperX
+- 🎥 Video ingestion from Ghana Parliament's YouTube channel
 - 🔍 Vector-based semantic search of proceedings
-- ⚡ Fast, modern web interface built with Next.js
-- 📱 Mobile-responsive design
 - 🔗 Direct links to video timestamps
 
 ## License
@@ -22,8 +18,7 @@ MIT License - see [LICENSE](LICENSE) for details
 
 ## Acknowledgments
 
-- Ghana Parliament for making proceedings publicly available
-- [WhisperX](https://github.com/m-bain/whisperX) for transcription capabilities
+- Ghana Parliament for making proceedings publicly available on Youtube [here](https://www.youtube.com/@parliamentofghana816/streams)
 - The open-source community for various tools and libraries used in this project
 
 ## Support
