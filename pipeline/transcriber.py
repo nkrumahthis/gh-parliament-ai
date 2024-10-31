@@ -29,9 +29,9 @@ class WhisperTranscriber:
         Path(TRANSCRIPTS_DIR).mkdir(parents=True, exist_ok=True)
         self.client = OpenAI()
 
-    def get_video_id_from_filename(self, filename: str) -> str:
+    def get_video_info_from_filename(self, filename: str) -> str:
         """Extract video ID from filename (format: videoId_title.mp3)."""
-        return filename.split('_')[0]
+        return tuple(filename.split('_'))
 
     def split_audio(self, audio_path: str) -> List[str]:
         """Split audio file into smaller chunks."""
@@ -132,11 +132,12 @@ class WhisperTranscriber:
                 # Merge segments
                 merged_segments = self.merge_transcripts(all_segments)
                 
-                video_id = self.get_video_id_from_filename(os.path.basename(audio_path))
+                video_id, video_title = self.get_video_id_from_filename(os.path.basename(audio_path))
                 
                 transcript_data = {
                     "video_id": video_id,
                     "video_url": f"https://youtube.com/watch?v={video_id}",
+                    "video_title": video_title,
                     "audio_filename": os.path.basename(audio_path),
                     "segments": merged_segments,
                     "processed_at": datetime.now().isoformat(),

@@ -2,6 +2,7 @@ export interface Reference {
     video_url: string;
     timestamp: string;
     text: string;
+    video_title: string;
 }
 
 export interface FollowUpQuestion {

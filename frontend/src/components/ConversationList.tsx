@@ -1,12 +1,12 @@
 import React from 'react';
-import { MessageCircle, Clock } from 'lucide-react';
+import { MessageCircle, Clock, CirclePlus } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { Conversation } from '../types';
 
 interface ConversationListProps {
     conversations: Conversation[];
     activeConversation: string | null;
-    onSelectConversation: (id: string) => void;
+    onSelectConversation: (id: string | null) => void;
 }
 
 const ConversationList: React.FC<ConversationListProps> = ({
@@ -16,6 +16,17 @@ const ConversationList: React.FC<ConversationListProps> = ({
 }) => {
     return (
         <div className="space-y-1 overflow-y-auto">
+            <button
+                    onClick={() => onSelectConversation(null)}
+                    className={`w-full px-4 py-3 text-left transition-colors`}
+                >
+                    <div className="flex items-center gap-2 mb-1">
+                        <CirclePlus className="w-4 h-4 text-gray-500" />
+                        <span className="text-sm font-medium text-gray-900 truncate">
+                            New Conversation
+                        </span>
+                    </div>
+                </button>
             {conversations.map((conv) => (
                 <button
                     key={conv.conversation_id}

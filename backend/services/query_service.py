@@ -32,7 +32,7 @@ class QueryService:
         formatted_contexts = []
         for chunk in context_chunks:
             formatted_contexts.append(
-                f"[Proceeding: {chunk['timestamp']} - {chunk['timestamp_link']}]\n{chunk['text']}"
+                f"[Proceeding: Timestamp: {chunk['timestamp']} - Link: {chunk['timestamp_link']}] - Title: {chunk['video_title']} \n{chunk['text']}"
             )
 
         context_text = "\n\n".join(formatted_contexts)
@@ -142,6 +142,7 @@ class QueryService:
             VideoReference(
                 video_url=chunk["timestamp_link"],
                 timestamp=chunk["timestamp"],
+                video_title=chunk["video_title"],
                 text=chunk["text"],
             )
             for chunk in context_chunks

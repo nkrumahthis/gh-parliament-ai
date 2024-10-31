@@ -50,7 +50,7 @@ const References: React.FC<{ references: Reference[] }> = ({ references }) => {
                             >
                                 <span>Watch</span>
                                 <Youtube className="w-3 h-3" />
-                                <span>{new URL(ref.video_url).searchParams.get('v')}</span>
+                                <span>{ref.video_title}</span>
                                 <Clock className="w-3 h-3" />
                                 <span>{ref.timestamp}</span>
                                 <ArrowUpRight className="w-3 h-3" />

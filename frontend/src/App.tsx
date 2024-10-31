@@ -37,7 +37,12 @@ const App = () => {
     }
   };
 
-  const loadConversation = async (conversationId: string) => {
+  const loadConversation = async (conversationId: string | null) => {
+    if (conversationId === null || conversationId === undefined){
+      setCurrentConversation(null);
+      return;
+    }
+    
     try {
       const response = await fetch(`${BACKEND}/conversations/${conversationId}`);
       const conversation = await response.json();
