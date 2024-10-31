@@ -2,7 +2,7 @@
 
 Making Ghana's parliamentary proceedings searchable and accessible through AI.
 
-<https://www.youtube.com/@parliamentofghana816/streams>
+<https://gh-parliament-ai.nkrumahsarpong.com>
 
 ## Overview
 
