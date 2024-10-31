@@ -37,7 +37,11 @@ conversation_service = ConversationService()
 app = FastAPI(title="gh-parliament-ai API")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=[
+        "http://localhost:5173",
+        "https://gh-parliament-ai.vercel.app",
+        "https://gh-parliament-ai.nkrumahsarpong.com",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -76,16 +80,13 @@ async def query_videos(request: QueryRequest):
         )
 
         # Save both user and assistant messages in the conversation
-        user_message = {
-            "type": "user",
-            "content": request.question
-        }
+        user_message = {"type": "user", "content": request.question}
 
         assistant_message = {
             "type": "assistant",
             "content": answer,
             "references": [ref.dict() for ref in references],
-            "follow_up_questions": follow_up_questions
+            "follow_up_questions": follow_up_questions,
         }
 
         # Save user message
@@ -117,6 +118,7 @@ async def query_videos(request: QueryRequest):
 @app.get("/conversations")
 async def get_conversations():
     return await conversation_service.get_conversations()
+
 
 @app.get("/conversations/{conversation_id}")
 async def get_conversation(conversation_id: str):
