@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
-import { Send, Loader2, HelpCircle, ArrowRight, Menu, X, MessageSquare } from 'lucide-react';
+import { HelpCircle, ArrowRight, Menu, X, MessageSquare } from 'lucide-react';
 import SampleQuestions from './components/SampleQuestions';
 import ChatContainer from './components/ChatContainer';
 import { FollowUpQuestion, Conversation } from './types';
 import ConversationList from './components/ConversationList';
+import MessageInput from './components/MessageInput';
 
 const BACKEND = import.meta.env.VITE_BACKEND_BASE_URL;
 
@@ -85,10 +86,7 @@ const App = () => {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!input.trim()) return;
-
+  const handleMessageSubmit = async (message: string) => {
     setIsLoading(true);
 
     try {
@@ -98,7 +96,7 @@ const App = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          question: input,
+          question: message,
           num_results: 4,
           conversation_id: currentConversation?.conversation_id
         }),
@@ -111,7 +109,7 @@ const App = () => {
       }
 
       await loadConversation(data.conversation_id);
-      setInput('');
+      setInput(''); // Clear input after successful submission
 
     } catch (error) {
       console.error('Error:', error);
@@ -208,35 +206,12 @@ const App = () => {
         </div>
 
         {/* Input Area */}
-        <div className="h-24 border-t border-gray-200 p-4 bg-white">
-          <form onSubmit={handleSubmit} className="h-full flex items-center">
-            <div className="flex-1 relative">
-              <input
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="Ask about parliamentary proceedings..."
-                className="w-full px-4 pr-12 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                disabled={isLoading}
-                style={{
-                  textOverflow: 'ellipsis'
-                }}
-              />
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 p-2 text-gray-400 hover:text-gray-600 bg-white"
-                aria-label={isLoading ? "Sending..." : "Send message"}
-              >
-                {isLoading ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                ) : (
-                  <Send className="w-5 h-5" />
-                )}
-              </button>
-            </div>
-          </form>
-        </div>
+        <MessageInput 
+          input={input}
+          onInputChange={setInput}
+          onSubmit={handleMessageSubmit}
+          isLoading={isLoading}
+        />
       </div>
 
       {/* Right Sidebar */}
