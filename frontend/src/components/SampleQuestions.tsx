@@ -79,29 +79,31 @@ const SampleQuestions: React.FC<SampleQuestionsProps> = ({
                 };
 
                 return (
-                    <div
+
+                    <button
                         key={index}
                         className={`rounded-lg border ${colors.border}`}
-                    >
-                        <button
-                            onClick={() => handleQuestionSelect(question.text)}
-                            className={`w-full text-left p-3 ${colors.bg} rounded-t-lg hover:opacity-90 transition-opacity`}
-                        >
-                            <div className="flex items-center gap-2 mb-1">
-                                <Tag className={`w-3 h-3 ${colors.text}`} />
-                                <span className={`text-xs font-medium ${colors.text}`}>
-                                    {question.category}
-                                </span>
+                        onClick={() => handleQuestionSelect(question.text)}
+                    >   <div>
+                            <div className={`w-full text-left p-3 ${colors.bg} rounded-t-lg hover:opacity-90 transition-opacity`}>
+                                <div className="flex items-center gap-2 mb-1">
+                                    <Tag className={`w-3 h-3 ${colors.text}`} />
+                                    <span className={`text-xs font-medium ${colors.text}`}>
+                                        {question.category}
+                                    </span>
+                                </div>
+                                <p className="text-sm text-gray-700">
+                                    {question.text}
+                                </p>
                             </div>
-                            <p className="text-sm text-gray-700">
-                                {question.text}
-                            </p>
-                        </button>
-
-                        <div className="px-3 py-2 text-xs text-gray-500 border-t border-gray-100">
-                            {question.context}
+                            <div className="px-3 py-2 text-xs text-gray-500 border-t border-gray-100 text-left">
+                                {question.context}
+                            </div>
                         </div>
-                    </div>
+                    </button>
+
+
+
                 );
             })}
         </div>
