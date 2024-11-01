@@ -14,6 +14,7 @@ const App = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [leftSidebarOpen, setLeftSidebarOpen] = useState(false);
   const [rightSidebarOpen, setRightSidebarOpen] = useState(false);
+  const [hasNewQuestions, setHasNewQuestions] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   const scrollToBottom = () => {
@@ -27,6 +28,29 @@ const App = () => {
   useEffect(() => {
     fetchConversations();
   }, []);
+
+  // Handle new follow-up questions
+  useEffect(() => {
+    const followUps = getFollowUpQuestions();
+    if (followUps.length > 0) {
+      setHasNewQuestions(true);
+      // Subtle pulse animation for the message icon
+      const messageIcon = document.getElementById('message-icon');
+      if (messageIcon) {
+        messageIcon.classList.add('animate-pulse');
+        setTimeout(() => {
+          messageIcon.classList.remove('animate-pulse');
+        }, 2000);
+      }
+    }
+  }, [currentConversation?.messages]);
+
+  // Reset new questions indicator when sidebar is opened
+  useEffect(() => {
+    if (rightSidebarOpen) {
+      setHasNewQuestions(false);
+    }
+  }, [rightSidebarOpen]);
 
   // Close sidebars when selecting a conversation on mobile
   useEffect(() => {
@@ -51,7 +75,7 @@ const App = () => {
       setCurrentConversation(null);
       return;
     }
-    
+
     try {
       const response = await fetch(`${BACKEND}/conversations/${conversationId}`);
       const conversation = await response.json();
@@ -111,10 +135,10 @@ const App = () => {
 
   const getFollowUpQuestions = (): FollowUpQuestion[] => {
     if (!currentConversation?.messages) return [];
-    
+
     const assistantMessages = currentConversation.messages.filter(m => m.type === 'assistant');
     if (assistantMessages.length === 0) return [];
-    
+
     const lastAssistantMessage = assistantMessages[assistantMessages.length - 1];
     return lastAssistantMessage.follow_up_questions || [];
   };
@@ -130,12 +154,23 @@ const App = () => {
           {leftSidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
         <div className="font-bold text-lg">🇬🇭 gh-parliament-ai</div>
-        <button
-          onClick={() => setRightSidebarOpen(!rightSidebarOpen)}
-          className="p-2"
-        >
-          <MessageSquare className="w-6 h-6" />
-        </button>
+        <div className="relative">
+          <button
+            onClick={() => setRightSidebarOpen(!rightSidebarOpen)}
+            className="p-2 relative"
+            aria-label={hasNewQuestions ? "New follow-up questions available" : "View suggested questions"}
+          >
+            <MessageSquare id="message-icon" className={`w-6 h-6 ${hasNewQuestions ? 'text-green-600' : ''}`} />
+            {hasNewQuestions && (
+              <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full" />
+            )}
+          </button>
+          {hasNewQuestions && !rightSidebarOpen && (
+            <div className="absolute top-full right-0 mt-2 px-2 py-1 bg-white border border-gray-200 rounded-lg shadow-lg text-xs whitespace-nowrap">
+              New follow-up questions available
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Left Sidebar */}
@@ -181,13 +216,17 @@ const App = () => {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Ask about parliamentary proceedings..."
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 pr-12 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 disabled={isLoading}
+                style={{
+                  textOverflow: 'ellipsis'
+                }}
               />
               <button
                 type="submit"
                 disabled={isLoading}
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 p-2 text-gray-400 hover:text-gray-600"
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 p-2 text-gray-400 hover:text-gray-600 bg-white"
+                aria-label={isLoading ? "Sending..." : "Send message"}
               >
                 {isLoading ? (
                   <Loader2 className="w-5 h-5 animate-spin" />
@@ -221,9 +260,9 @@ const App = () => {
               </>
             )}
           </div>
-          <SampleQuestions 
-            setInput={setInput} 
-            followUpQuestions={getFollowUpQuestions()} 
+          <SampleQuestions
+            setInput={setInput}
+            followUpQuestions={getFollowUpQuestions()}
           />
         </div>
       </div>
