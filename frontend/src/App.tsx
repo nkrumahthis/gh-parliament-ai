@@ -203,19 +203,21 @@ const App = () => {
 
       {/* Left Sidebar */}
       <div className={`
-        fixed md:relative w-3/4 md:w-1/4 bg-white border-r border-gray-200 h-full z-40
-        transition-transform duration-300 ease-in-out
+        fixed md:relative w-3/4 md:w-1/4 bg-white border-r border-gray-200 h-screen z-40
+        transition-transform duration-300 ease-in-out flex flex-col
         ${leftSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
         md:translate-x-0
       `}>
-        <div className="hidden md:flex items-center space-x-2 p-4">
+        <div className="hidden md:flex items-center space-x-2 p-4 flex-shrink-0">
           <div className="font-bold text-xl">🇬🇭 gh-parliament-ai</div>
         </div>
-        <ConversationList
-          conversations={conversations}
-          activeConversation={currentConversation?.conversation_id || null}
-          onSelectConversation={loadConversation}
-        />
+        <div className="flex-1 min-h-0">
+          <ConversationList
+            conversations={conversations}
+            activeConversation={currentConversation?.conversation_id || null}
+            onSelectConversation={loadConversation}
+          />
+        </div>
       </div>
 
       {/* Main Content */}
