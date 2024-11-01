@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { HelpCircle, ArrowRight, Menu, X, MessageSquare } from 'lucide-react';
 import SampleQuestions from './components/SampleQuestions';
 import ChatContainer from './components/ChatContainer';
@@ -32,12 +32,22 @@ const App = () => {
     fetchConversations();
   }, []);
 
+  const getFollowUpQuestions = useCallback((): FollowUpQuestion[] => {
+    if (!currentConversation?.messages) return [];
+
+    const assistantMessages = currentConversation.messages.filter(m => m.type === 'assistant');
+    if (assistantMessages.length === 0) return [];
+
+    const lastAssistantMessage = assistantMessages[assistantMessages.length - 1];
+    return lastAssistantMessage.follow_up_questions || [];
+  }, [currentConversation?.messages]); // Only recreate when messages change
+
+
   // Handle new follow-up questions
   useEffect(() => {
     const followUps = getFollowUpQuestions();
     if (followUps.length > 0) {
       setHasNewQuestions(true);
-      // Subtle pulse animation for the message icon
       const messageIcon = document.getElementById('message-icon');
       if (messageIcon) {
         messageIcon.classList.add('animate-pulse');
@@ -46,7 +56,7 @@ const App = () => {
         }, 2000);
       }
     }
-  }, [currentConversation?.messages]);
+  }, [getFollowUpQuestions]);
 
   // Reset new questions indicator when sidebar is opened
   useEffect(() => {
@@ -161,16 +171,6 @@ const App = () => {
     ? [...(currentConversation.messages || []), ...optimisticMessages]
     : optimisticMessages;
 
-  const getFollowUpQuestions = (): FollowUpQuestion[] => {
-    if (!currentConversation?.messages) return [];
-
-    const assistantMessages = currentConversation.messages.filter(m => m.type === 'assistant');
-    if (assistantMessages.length === 0) return [];
-
-    const lastAssistantMessage = assistantMessages[assistantMessages.length - 1];
-    return lastAssistantMessage.follow_up_questions || [];
-  };
-
   return (
     <div className="flex h-screen bg-gray-50 relative">
       {/* Mobile Navigation Bar */}
@@ -267,7 +267,18 @@ const App = () => {
             )}
           </div>
           <SampleQuestions
-            setInput={setInput}
+            handleQuestionSelect={(question: string) => {
+              setInput(question);
+
+              // Close right sidebar on mobile
+              if (window.innerWidth < 768) {
+                setRightSidebarOpen(false);
+              }
+
+              // Optional: Focus the input field
+              const inputElement = document.querySelector('textarea');
+              inputElement?.focus();
+            }}
             followUpQuestions={getFollowUpQuestions()}
           />
         </div>

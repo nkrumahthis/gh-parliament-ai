@@ -3,12 +3,12 @@ import { Tag } from 'lucide-react';
 import { FollowUpQuestion } from '../types';
 
 interface SampleQuestionsProps {
-    setInput: (question: string) => void;
+    handleQuestionSelect: (question: string) => void;
     followUpQuestions: FollowUpQuestion[];
 }
 
 const SampleQuestions: React.FC<SampleQuestionsProps> = ({
-    setInput,
+    handleQuestionSelect,
     followUpQuestions
 }) => {
     const categoryColors: Record<string, { bg: string; text: string; border: string }> = {
@@ -84,7 +84,7 @@ const SampleQuestions: React.FC<SampleQuestionsProps> = ({
                         className={`rounded-lg border ${colors.border}`}
                     >
                         <button
-                            onClick={() => setInput(question.text)}
+                            onClick={() => handleQuestionSelect(question.text)}
                             className={`w-full text-left p-3 ${colors.bg} rounded-t-lg hover:opacity-90 transition-opacity`}
                         >
                             <div className="flex items-center gap-2 mb-1">
