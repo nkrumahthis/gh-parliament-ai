@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Send, Loader2 } from 'lucide-react';
 
 interface MessageInputProps {
@@ -6,13 +6,15 @@ interface MessageInputProps {
   onInputChange: (value: string) => void;
   onSubmit: (message: string) => Promise<void>;
   isLoading?: boolean;
+  isThinking?: boolean;
 }
 
 const MessageInput = ({ 
   input, 
   onInputChange, 
   onSubmit, 
-  isLoading = false 
+  isLoading = false,
+  isThinking = false
 }: MessageInputProps) => {
   const [inputHeight, setInputHeight] = useState('auto');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -33,13 +35,13 @@ const MessageInput = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim()) return;
+    if (!input.trim() || isThinking) return;
+    await onSubmit(input);
+  };
 
-    try {
-      await onSubmit(input);
-    } catch (error) {
-      console.error('Error submitting message:', error);
-    }
+  const getPlaceholder = () => {
+    if (isThinking) return "Please wait while I process your last question...";
+    return "Ask about parliamentary proceedings...";
   };
 
   return (
@@ -47,8 +49,8 @@ const MessageInput = ({
       className="border-t border-gray-200 bg-white transition-all duration-200 ease-in-out"
       style={{ height: inputHeight }}
     >
-      <form onSubmit={handleSubmit} className="h-full p-4">
-        <div className="relative flex items-end">
+      <form onSubmit={handleSubmit} className="h-full flex items-end p-4">
+        <div className="flex-1 relative flex items-end">
           <textarea
             ref={textareaRef}
             value={input}
@@ -56,33 +58,51 @@ const MessageInput = ({
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
-                if (input.trim()) {
+                if (input.trim() && !isThinking) {
                   handleSubmit(e);
                 }
               }
             }}
-            placeholder="Ask about parliamentary proceedings..."
-            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none overflow-hidden leading-normal pr-24"
-            disabled={isLoading}
+            placeholder={getPlaceholder()}
+            className={`
+              w-full px-4 pr-12 py-3 rounded-lg border 
+              resize-none overflow-hidden leading-normal
+              transition-colors duration-200
+              ${isThinking 
+                ? 'bg-gray-50 border-gray-200 text-gray-500' 
+                : 'border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500'
+              }
+            `}
+            disabled={isThinking}
             rows={1}
             maxLength={1000}
             aria-label="Message input"
           />
-          <div className="absolute right-3 bottom-3 flex items-center gap-2 bg-white">
-            {input.length > 0 && (
+          <div className="absolute right-2 bottom-3 flex items-center gap-2">
+            {input.length > 0 && !isThinking && (
               <span className="text-xs text-gray-400">
                 {input.length}/1000
               </span>
             )}
             <button
               type="submit"
-              disabled={isLoading || !input.trim()}
-              className={`p-1.5 rounded-full transition-all duration-200 ${
-                input.trim() 
-                  ? 'text-blue-600 hover:bg-blue-50' 
-                  : 'text-gray-300'
-              }`}
-              aria-label={isLoading ? "Sending..." : "Send message"}
+              disabled={isLoading || !input.trim() || isThinking}
+              className={`
+                p-2 rounded-full transition-all duration-200
+                ${isThinking
+                  ? 'text-gray-300 cursor-not-allowed'
+                  : input.trim() 
+                    ? 'text-blue-600 hover:bg-blue-50' 
+                    : 'text-gray-300'
+                }
+              `}
+              aria-label={
+                isThinking 
+                  ? "AI is thinking" 
+                  : isLoading 
+                    ? "Sending message" 
+                    : "Send message"
+              }
             >
               {isLoading ? (
                 <Loader2 className="w-5 h-5 animate-spin" />

@@ -17,6 +17,7 @@ export interface Message {
     timestamp: string;
     references?: Reference[];
     follow_up_questions?: FollowUpQuestion[];
+    isOptimistic?: boolean;
 }
 
 export interface Conversation {

@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { HelpCircle, ArrowRight, Menu, X, MessageSquare } from 'lucide-react';
 import SampleQuestions from './components/SampleQuestions';
 import ChatContainer from './components/ChatContainer';
-import { FollowUpQuestion, Conversation } from './types';
+import { FollowUpQuestion, Conversation, Message } from './types';
 import ConversationList from './components/ConversationList';
 import MessageInput from './components/MessageInput';
 
@@ -17,6 +17,8 @@ const App = () => {
   const [rightSidebarOpen, setRightSidebarOpen] = useState(false);
   const [hasNewQuestions, setHasNewQuestions] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const [optimisticMessages, setOptimisticMessages] = useState<Message[]>([]);
+  const [isThinking, setIsThinking] = useState(false);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -87,7 +89,30 @@ const App = () => {
   };
 
   const handleMessageSubmit = async (message: string) => {
+    if (!message.trim()) return;
+
+    setInput('');
+
+    // Add user message immediately
+    const userMessage: Message = {
+      type: 'user',
+      content: message,
+      timestamp: new Date().toISOString()
+    };
+
+    // Add thinking message
+    const thinkingMessage: Message = {
+      type: 'assistant',
+      content: 'Analyzing parliamentary proceedings...',
+      timestamp: new Date().toISOString(),
+      isOptimistic: true
+    };
+
+    // Update optimistic messages
+    setOptimisticMessages([userMessage, thinkingMessage]);
+    setIsThinking(true);
     setIsLoading(true);
+
 
     try {
       const response = await fetch(`${BACKEND}/query`, {
@@ -104,32 +129,37 @@ const App = () => {
 
       const data = await response.json();
 
+      // Clear optimistic messages
+      setOptimisticMessages([]);
+
+      // If this was a new conversation, fetch all conversations
       if (!currentConversation?.conversation_id) {
         await fetchConversations();
       }
 
+      // Load the current conversation with updated messages
       await loadConversation(data.conversation_id);
-      setInput(''); // Clear input after successful submission
 
     } catch (error) {
       console.error('Error:', error);
-      if (currentConversation) {
-        setCurrentConversation((prev) => {
-          if (!prev) return null;
-          return {
-            ...prev,
-            messages: [...prev.messages, {
-              type: 'error',
-              content: 'Sorry, there was an error processing your request.',
-              timestamp: new Date().toISOString()
-            }]
-          };
-        });
-      }
+      setOptimisticMessages([
+        userMessage,
+        {
+          type: 'error',
+          content: 'Sorry, there was an error processing your request.',
+          timestamp: new Date().toISOString()
+        }
+      ]);
     } finally {
       setIsLoading(false);
+      setIsThinking(false);
     }
   };
+
+  // Combine real and optimistic messages for display
+  const displayMessages = currentConversation
+    ? [...(currentConversation.messages || []), ...optimisticMessages]
+    : optimisticMessages;
 
   const getFollowUpQuestions = (): FollowUpQuestion[] => {
     if (!currentConversation?.messages) return [];
@@ -201,16 +231,17 @@ const App = () => {
 
         {/* Chat Container */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6 mt-14 md:mt-0">
-          <ChatContainer messages={currentConversation?.messages || []} />
+          <ChatContainer messages={displayMessages} />
           <div ref={messagesEndRef} />
         </div>
 
         {/* Input Area */}
-        <MessageInput 
+        <MessageInput
           input={input}
           onInputChange={setInput}
           onSubmit={handleMessageSubmit}
           isLoading={isLoading}
+          isThinking={isThinking}
         />
       </div>
 
