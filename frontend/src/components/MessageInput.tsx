@@ -50,7 +50,7 @@ const MessageInput = ({
       style={{ height: inputHeight }}
     >
       <form onSubmit={handleSubmit} className="h-full flex items-end p-4">
-        <div className="flex-1 relative flex items-end">
+        <div className="flex-1 relative flex">
           <textarea
             ref={textareaRef}
             value={input}
@@ -65,7 +65,7 @@ const MessageInput = ({
             }}
             placeholder={getPlaceholder()}
             className={`
-              w-full px-4 pr-12 py-3 rounded-lg border 
+              w-full px-4 py-3 rounded-lg border 
               resize-none overflow-hidden leading-normal
               transition-colors duration-200
               ${isThinking 
@@ -75,15 +75,9 @@ const MessageInput = ({
             `}
             disabled={isThinking}
             rows={1}
-            maxLength={1000}
             aria-label="Message input"
           />
-          <div className="absolute right-2 bottom-3 flex items-center gap-2">
-            {input.length > 0 && !isThinking && (
-              <span className="text-xs text-gray-400">
-                {input.length}/1000
-              </span>
-            )}
+          <div className=" flex items-center gap-2">
             <button
               type="submit"
               disabled={isLoading || !input.trim() || isThinking}
