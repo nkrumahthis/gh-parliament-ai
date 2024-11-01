@@ -42,7 +42,6 @@ const App = () => {
     return lastAssistantMessage.follow_up_questions || [];
   }, [currentConversation?.messages]); // Only recreate when messages change
 
-
   // Handle new follow-up questions
   useEffect(() => {
     const followUps = getFollowUpQuestions();
@@ -171,6 +170,20 @@ const App = () => {
     ? [...(currentConversation.messages || []), ...optimisticMessages]
     : optimisticMessages;
 
+
+  const handleQuestionSelect = (question: string) => {
+    setInput(question);
+
+    // Close right sidebar on mobile
+    if (window.innerWidth < 768) {
+      setRightSidebarOpen(false);
+    }
+
+    // Optional: Focus the input field
+    const inputElement = document.querySelector('textarea');
+    inputElement?.focus();
+  }
+
   return (
     <div className="flex h-screen bg-gray-50 relative">
       {/* Mobile Navigation Bar */}
@@ -233,7 +246,11 @@ const App = () => {
 
         {/* Chat Container */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6 mt-14 md:mt-0">
-          <ChatContainer messages={displayMessages} />
+          <ChatContainer
+            messages={displayMessages}
+            handleQuestionSelect={handleQuestionSelect}
+            followUpQuestions={getFollowUpQuestions()}
+          />
           <div ref={messagesEndRef} />
         </div>
 
@@ -269,18 +286,7 @@ const App = () => {
             )}
           </div>
           <SampleQuestions
-            handleQuestionSelect={(question: string) => {
-              setInput(question);
-
-              // Close right sidebar on mobile
-              if (window.innerWidth < 768) {
-                setRightSidebarOpen(false);
-              }
-
-              // Optional: Focus the input field
-              const inputElement = document.querySelector('textarea');
-              inputElement?.focus();
-            }}
+            handleQuestionSelect={handleQuestionSelect}
             followUpQuestions={getFollowUpQuestions()}
           />
         </div>
