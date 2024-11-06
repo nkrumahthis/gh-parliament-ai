@@ -1,21 +1,17 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { HelpCircle, ArrowRight, Menu, X, MessageSquare } from 'lucide-react';
+import { HelpCircle, ArrowRight, CircleMinus } from 'lucide-react';
 import SampleQuestions from './components/SampleQuestions';
 import ChatContainer from './components/ChatContainer';
 import { FollowUpQuestion, Conversation, Message } from './types';
-import ConversationList from './components/ConversationList';
 import MessageInput from './components/MessageInput';
 
 const BACKEND = import.meta.env.VITE_BACKEND_BASE_URL;
 
 const App = () => {
   const [currentConversation, setCurrentConversation] = useState<Conversation | null>(null);
-  const [conversations, setConversations] = useState<Conversation[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [leftSidebarOpen, setLeftSidebarOpen] = useState(false);
   const [rightSidebarOpen, setRightSidebarOpen] = useState(false);
-  const [hasNewQuestions, setHasNewQuestions] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const [optimisticMessages, setOptimisticMessages] = useState<Message[]>([]);
   const [isThinking, setIsThinking] = useState(false);
@@ -27,10 +23,6 @@ const App = () => {
   useEffect(() => {
     scrollToBottom();
   }, [currentConversation?.messages]);
-
-  useEffect(() => {
-    fetchConversations();
-  }, []);
 
   const getFollowUpQuestions = useCallback((): FollowUpQuestion[] => {
     if (!currentConversation?.messages) return [];
@@ -46,7 +38,6 @@ const App = () => {
   useEffect(() => {
     const followUps = getFollowUpQuestions();
     if (followUps.length > 0) {
-      setHasNewQuestions(true);
       const messageIcon = document.getElementById('message-icon');
       if (messageIcon) {
         messageIcon.classList.add('animate-pulse');
@@ -57,30 +48,12 @@ const App = () => {
     }
   }, [getFollowUpQuestions]);
 
-  // Reset new questions indicator when sidebar is opened
-  useEffect(() => {
-    if (rightSidebarOpen) {
-      setHasNewQuestions(false);
-    }
-  }, [rightSidebarOpen]);
-
   // Close sidebars when selecting a conversation on mobile
   useEffect(() => {
     if (window.innerWidth < 768) {
-      setLeftSidebarOpen(false);
       setRightSidebarOpen(false);
     }
   }, [currentConversation]);
-
-  const fetchConversations = async () => {
-    try {
-      const response = await fetch(`${BACKEND}/conversations`);
-      const data = await response.json();
-      setConversations(data);
-    } catch (error) {
-      console.error('Error fetching conversations:', error);
-    }
-  };
 
   const loadConversation = async (conversationId: string | null) => {
     if (conversationId === null || conversationId === undefined) {
@@ -141,11 +114,6 @@ const App = () => {
       // Clear optimistic messages
       setOptimisticMessages([]);
 
-      // If this was a new conversation, fetch all conversations
-      if (!currentConversation?.conversation_id) {
-        await fetchConversations();
-      }
-
       // Load the current conversation with updated messages
       await loadConversation(data.conversation_id);
 
@@ -186,72 +154,40 @@ const App = () => {
 
   return (
     <div className="flex h-screen bg-gray-50 relative">
-      {/* Mobile Navigation Bar */}
-      <div className="md:hidden fixed top-0 left-0 right-0 h-14 bg-white border-b border-gray-200 flex items-center justify-between px-4 z-50">
-        <button
-          onClick={() => setLeftSidebarOpen(!leftSidebarOpen)}
-          className="p-2"
-        >
-          {leftSidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-        </button>
-        <div className="font-bold text-lg">🇬🇭 gh-parliament-ai</div>
-        <div className="relative">
-          <button
-            onClick={() => setRightSidebarOpen(!rightSidebarOpen)}
-            className="p-2 relative"
-            aria-label={hasNewQuestions ? "New follow-up questions available" : "View suggested questions"}
-          >
-            <MessageSquare id="message-icon" className={`w-6 h-6 ${hasNewQuestions ? 'text-green-600' : ''}`} />
-            {hasNewQuestions && (
-              <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full" />
-            )}
-          </button>
-          {hasNewQuestions && !rightSidebarOpen && (
-            <div className="absolute top-full right-0 mt-2 px-2 py-1 bg-white border border-gray-200 rounded-lg shadow-lg text-xs whitespace-nowrap">
-              New follow-up questions available
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Left Sidebar */}
-      <div className={`
-        fixed md:relative w-3/4 md:w-1/4 bg-white border-r border-gray-200 h-screen z-40
-        transition-transform duration-300 ease-in-out flex flex-col
-        ${leftSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
-        md:translate-x-0
-      `}>
-        <div className="hidden md:flex items-center space-x-2 p-4 flex-shrink-0">
-          <div className="font-bold text-xl">🇬🇭 gh-parliament-ai</div>
-        </div>
-        <div className="flex-1 min-h-0">
-          <ConversationList
-            conversations={conversations}
-            activeConversation={currentConversation?.conversation_id || null}
-            onSelectConversation={loadConversation}
-          />
-        </div>
-      </div>
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col h-full md:h-screen w-full md:w-auto">
-        {/* Desktop Navigation */}
-        <div className="hidden md:flex h-14 border-b border-gray-200 items-center px-6 bg-white">
-          <div className="flex space-x-4">
-            <h1 className="px-4 py-2 text-sm font-medium text-gray-900 border-b-2 border-gray-900">
-              Chat
+        <div className="w-full md:flex h-14 border-b border-gray-200 items-center px-6 bg-white">
+          <div className="flex w-full space-x-4 py-4 justify-between">
+            <h1 className="text-l font-bold text-gray-900 border-gray-900">
+              🇬🇭 gh-parliament-ai
             </h1>
+
+            <button
+              onClick={() => setCurrentConversation(null)}
+              className={`px-4 text-left transition-colors shrink-0 hover:bg-gray-50`}
+            >
+              <div className="flex items-center gap-2 m-1 ">
+                <CircleMinus className="w-4 h-4 text-gray-500" />
+                <span className="text-sm font-medium text-gray-900">
+                  Clear
+                </span>
+              </div>
+            </button>
+
           </div>
         </div>
 
         {/* Chat Container */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-6 mt-14 md:mt-0">
-          <ChatContainer
-            messages={displayMessages}
-            handleQuestionSelect={handleQuestionSelect}
-            followUpQuestions={getFollowUpQuestions()}
-          />
-          <div ref={messagesEndRef} />
+        <div className="flex-1 overflow-y-auto p-6 space-y-6 md:mt-0">
+          <div className="lg:w-2/3 lg:mx-auto">
+            <ChatContainer
+              messages={displayMessages}
+              handleQuestionSelect={handleQuestionSelect}
+              followUpQuestions={getFollowUpQuestions()}
+            />
+            <div ref={messagesEndRef} />
+          </div>
         </div>
 
         {/* Input Area */}
