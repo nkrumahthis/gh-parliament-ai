@@ -14,6 +14,23 @@ gh-parliament-ai is an open-source project that automatically processes Ghana's 
 - 🔍 Vector-based semantic search of proceedings
 - 🔗 Direct links to video timestamps
 
+## Local Setup
+
+Backend:
+
+```commandLine
+python3 -m venv .venv
+source .venv/bin/activate
+python backend/run.py
+```
+
+Frontend:
+
+```commandLine
+cd frontend
+npm run dev
+```
+
 ## License
 
 MIT License - see [LICENSE](LICENSE) for details
